@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Loading…</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="engine.css">
+</head>
+<body>
+<!-- Video Game Forge engine shell. Everything game-specific comes from game.json. -->
+<div id="app">
+  <div id="stage">
+    <div id="shaker">
+      <div id="videos"></div>
+      <div id="grade"></div>
+      <div id="grid"></div>
+      <canvas id="fx"></canvas>
+      <div id="flash"></div>
+    </div>
+    <div id="bars"><i></i><i></i></div>
+
+    <div id="hud" class="hidden min">
+      <div id="nav"></div>
+      <div id="objective"><div class="o-row"><span class="o-lbl">Objective</span><span id="objText"></span></div><div id="windowPill" class="hidden"></div></div>
+      <div id="mapcard"><div class="pill"><span class="dot"></span><span id="timer">00:00.00</span></div><div class="card"><div id="rooms"></div><div class="cbtn" id="roomName"></div></div></div>
+      <div id="meters"></div>
+      <div id="readouts"></div>
+      <div id="dial" class="hidden">
+        <svg viewBox="0 0 200 200"><circle class="d-ticks" cx="100" cy="100" r="92"/><circle class="d-ring" cx="100" cy="100" r="80"/><circle class="d-fill" id="dialFill" cx="100" cy="100" r="80"/><circle class="d-inner" cx="100" cy="100" r="62"/></svg>
+        <div class="d-center"><b id="dialNum">0</b><span id="dialLbl"></span></div>
+      </div>
+      <div id="subs"></div>
+      <div id="banner"></div>
+      <div id="menu"></div>
+      <div id="tags"></div>
+      <div id="nums"></div>
+    </div>
+
+    <div id="skip" class="hidden">Hold <kbd>Enter</kbd> to skip <div class="skipbar"><div id="skipFill"></div></div></div>
+
+    <div id="title" class="screen">
+      <div class="title-bg" id="titleBg"></div>
+      <div class="page">
+        <div class="p-top"><h2 id="tHead"></h2><span class="credit" id="tCredit"></span><span class="p-circle"></span></div>
+        <div class="p-mid">
+          <div class="p-kicker" id="tKicker"></div>
+          <h1 id="tTitle"></h1>
+          <div class="p-load"><div id="loadFill"></div></div>
+          <div id="loadTxt" class="p-loadtxt">Loading footage 0%</div>
+          <div class="menu static"><button id="startBtn" class="mi sel" disabled>Start <kbd>Enter</kbd></button></div>
+        </div>
+        <div class="p-bottom"><p id="tBlurb"></p><span class="barcode"></span></div>
+      </div>
+    </div>
+
+    <div id="briefing" class="screen hidden">
+      <div class="title-bg" id="briefBg"></div>
+      <div class="page">
+        <div class="p-top"><h2>↘ BRIEFING</h2><span class="credit" id="bCredit"></span><span class="p-circle"></span></div>
+        <div class="b-body">
+          <div class="b-intro"><div class="p-kicker" id="bKicker"></div><h3 id="bHead"></h3><p id="bText"></p></div>
+          <div class="b-controls" id="bControls"></div>
+        </div>
+        <div class="p-bottom"><div class="menu static"><button id="briefBtn" class="mi sel">Begin <kbd>Enter</kbd></button></div><span class="barcode"></span></div>
+      </div>
+    </div>
+
+    <div id="pause" class="screen hidden">
+      <div class="menu">
+        <div class="m-head">↘ Paused</div>
+        <button class="mi sel" data-act="resume">Resume</button>
+        <button class="mi" data-act="restart">Restart</button>
+        <button class="mi" data-act="mute">Toggle sound</button>
+        <button class="mi" data-act="title">Quit to title</button>
+      </div>
+    </div>
+
+    <div id="results" class="screen hidden">
+      <div class="page report">
+        <div class="p-top"><h2 id="rTitle"></h2><span class="rank" id="rRank"></span></div>
+        <div class="r-sub" id="rSub"></div>
+        <div class="r-grid" id="rRows"></div>
+        <div class="p-bottom">
+          <div class="menu static row"><button class="mi sel" data-act="restart">Play again</button><button class="mi" data-act="title">Title</button></div>
+          <span class="credit" id="rCredit"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="touch" class="hidden"></div>
+  </div>
+</div>
+<script src="engine.js"></script>
+<script>if (/[?&]render=/.test(location.search)) document.write('<script src="render/hooks.js"><\/script>');</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "title": "MY GAME", "subtitle": "Working title", "kicker": "A playable AI-video game", "blurb": "One-paragraph pitch shown on the title page.",
+    "credit": "Your Name", "start": "intro", "mood": "tense", "musicLevel": 0.45, "playVolume": 0.8, "motes": 10,
+    "titleImage": "assets/img/k02_loop.jpg", "theme": { "accent": "#ff6b3d", "accent2": "#5ee0ff", "mote": "255,200,160" },
+    "briefing": { "kicker": "Mission 01", "heading": "Do the<br>thing.", "text": "What the player must do and what makes it fail.", "image": "assets/img/k02_loop.jpg" }
+  },
+  "clips": {
+    "intro":   { "src": "assets/video/c01_intro.mp4" },
+    "loop":    { "src": "assets/video/c02_loop.mp4", "loop": true },
+    "success": { "src": "assets/video/c03_success.mp4" },
+    "fail":    { "src": "assets/video/c04_fail.mp4" },
+    "win":     { "src": "assets/video/c05_win.mp4" },
+    "lose":    { "src": "assets/video/c06_lose.mp4" }
+  },
+  "vars": { "risk": { "init": 0, "min": 0, "max": 100 } },
+  "hud": { "meters": [{ "var": "risk", "label": "Risk", "max": 100, "hot": true }], "readouts": [["Risk", "risk"], ["Time", "time"]], "dial": { "var": "risk", "label": "Risk", "max": 100, "hot": "risk>=60" } },
+  "controls": [{ "key": "Space", "label": "Act", "desc": "Only while it's safe." }],
+  "rules": [{ "when": "risk>=100", "do": [["end", "lose"]] }],
+  "states": {
+    "intro": { "clip": "intro", "skippable": true, "banner": ["My game", "Subtitle"], "next": "loop" },
+    "loop": {
+      "clip": "loop", "objective": "Act while it's safe",
+      "inputs": [{ "key": "Space", "label": "Act", "hint": "only while it's safe", "windows": [[0.5, 2.0]], "safe": "Safe — go", "danger": "Wait", "ok": "success", "fail": "fail" }]
+    },
+    "success": { "clip": "success", "next": [["end", "win"]] },
+    "fail": { "clip": "fail", "enter": [["add", "risk", 35], ["tag", "Too soon · +35", "bad"]], "next": "loop" },
+    "win": { "clip": "win" },
+    "lose": { "clip": "lose" }
+  },
+  "endings": { "win": { "state": "win", "win": true, "title": "Done", "text": "You did the thing." }, "lose": { "state": "lose", "win": false, "title": "Failed", "text": "Try again." } },
+  "rank": [["risk==0", "S"], ["risk<=35", "A"], ["true", "B"]],
+  "results": [["Risk", "risk"], ["Mistakes", "fails"]],
+  "demo": { "title": 4, "briefing": 6, "results": 6, "states": { "loop": [[["wait", 1], ["press", "Space", "danger"]], [["press", "Space", "safe"]]] } }
+}

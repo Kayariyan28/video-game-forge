@@ -1,0 +1,215 @@
+{
+  "meta": {
+    "title": "DUSTFALL",
+    "subtitle": "Coral Bay",
+    "kicker": "A playable AI-video boss fight",
+    "blurb": "A blood-orange dust storm has swallowed the boardwalk. Two outlaws walk in to collect a two-million-dollar bounty on The Sandman, a 2.5-metre armored enforcer. Shoot his weak points, read his attacks, and dodge or counter on the beat.",
+    "credit": "K28",
+    "start": "intro",
+    "mood": "tense",
+    "musicLevel": 0.55,
+    "playVolume": 0.7,
+    "motes": 16,
+    "titleImage": "assets/img/k03_standoff.jpg",
+    "theme": { "accent": "#ff6b3d", "accent2": "#ffd27a", "mote": "255,170,100" },
+    "briefing": {
+      "kicker": "Contract CB-07 · $2,000,000",
+      "heading": "Bring down<br>The Sandman.",
+      "text": "Bullets bounce off the plates, so hit the glowing weak points when they open. Read his wind-ups: dodge the flamethrower and counter the ground-pound. Perfect timing fills the heat meter for the duo ultimate.",
+      "image": "assets/img/k02_reveal.jpg"
+    }
+  },
+
+  "clips": {
+    "intro":     { "src": "assets/video/c01_intro.mp4" },
+    "reveal":    { "src": "assets/video/c02_reveal.mp4" },
+    "idle":      { "src": "assets/video/c03_idle.mp4", "loop": true },
+    "rae":       { "src": "assets/video/c04_rae_fire.mp4" },
+    "cole":      { "src": "assets/video/c05_cole_blast.mp4" },
+    "flameWind": { "src": "assets/video/c06_flame_wind.mp4" },
+    "dodge":     { "src": "assets/video/c07_dodge.mp4" },
+    "burned":    { "src": "assets/video/c08_burned.mp4" },
+    "leapWind":  { "src": "assets/video/c09_leap.mp4" },
+    "counter":   { "src": "assets/video/c10_counter.mp4" },
+    "slam":      { "src": "assets/video/c11_slam.mp4" },
+    "special":   { "src": "assets/video/c12_special.mp4" },
+    "rage":      { "src": "assets/video/c13_rage.mp4" },
+    "finisher":  { "src": "assets/video/c14_finisher.mp4" },
+    "defeat":    { "src": "assets/video/c15_defeat.mp4" },
+    "victory":   { "src": "assets/video/c16_victory.mp4" }
+  },
+
+  "vars": {
+    "bossHp": { "init": 48000, "min": 0, "max": 48000 },
+    "hp": { "init": 1000, "min": 0, "max": 1000 },
+    "heat": { "init": 0, "min": 0, "max": 100 },
+    "phase": 1,
+    "perfectCounter": 0
+  },
+
+  "hud": {
+    "meters": [{ "var": "hp", "label": "Vitality", "max": 1000 }, { "var": "heat", "label": "Heat", "max": 100, "hot": true }],
+    "readouts": [["The Sandman", "bossHp"], ["Vitality", "hp"], ["Phase", "phase"], ["Time", "time"]],
+    "dial": { "var": "heat", "label": "Sundown", "max": 100, "hot": "heat>=100" }
+  },
+
+  "controls": [
+    { "key": "Click", "label": "Shoot weak points", "desc": "Core, visor, flamer, gauntlet, knees. Dead centre crits." },
+    { "key": "KeyQ", "label": "Twin-Fang barrage", "desc": "Rae empties both pistols. 6 s cooldown." },
+    { "key": "KeyE", "label": "Breach shell", "desc": "Cole's point-blank shotgun. 9 s cooldown." },
+    { "key": "KeyX", "label": "Sundown crossfire", "desc": "Duo ultimate at 100 heat." },
+    { "key": "Space", "label": "Dodge", "desc": "As the ring closes on the flamethrower." },
+    { "key": "KeyF", "label": "Counter", "desc": "As he lands the ground-pound." }
+  ],
+
+  "rules": [
+    { "when": "hp<=0", "do": [["end", "lose"]] },
+    { "when": "bossHp<=0", "in": ["idle", "idle2"], "do": "finish" },
+    { "when": "phase==1 && bossHp<=24000", "in": ["idle"], "do": [["set", "phase", 2], ["goto", "rage"]] }
+  ],
+
+  "states": {
+    "intro": {
+      "clip": "intro", "skippable": true, "banner": ["DUSTFALL", "Coral Bay · 21:47 · storm warning"],
+      "subs": [[4.1, "Rae", "Coral Bay's ours tonight."], [5.6, "Cole", "Then let's go take it."]], "next": "reveal"
+    },
+    "reveal": {
+      "clip": "reveal", "skippable": true, "banner": ["The Sandman", "Armored enforcer · bounty $2,000,000", "danger"],
+      "subs": [[3.2, "The Sandman", "Nobody leaves my storm."]], "cues": [{ "t": 2.6, "do": [["shake", 8]] }],
+      "next": [["banner", "Engage", "Shoot the glowing weak points · react to his attacks"], ["goto", "idle"]]
+    },
+
+    "idle": {
+      "clip": "idle", "objective": "Shoot weak points · dodge and counter his attacks",
+      "spawn": {
+        "label": "Shoot weak points", "sub": "click as they open",
+        "points": [{ "x": 0.502, "y": 0.463, "name": "CORE" }, { "x": 0.5, "y": 0.385, "name": "VISOR" }, { "x": 0.423, "y": 0.62, "name": "FLAMER" },
+                   { "x": 0.585, "y": 0.6, "name": "GAUNTLET" }, { "x": 0.46, "y": 0.7, "name": "KNEE" }, { "x": 0.545, "y": 0.7, "name": "KNEE" }],
+        "every": [1.0, 1.6], "first": 0.6, "life": 1.5, "max": 2,
+        "hit": [["add", "bossHp", [-520, -320]], ["num", "{last}", "WEAK"], ["add", "heat", 6], ["sfx", "ping"]],
+        "crit": [["add", "bossHp", [-880, -560]], ["num", "{last}", "CRIT", null, null, "big"], ["add", "heat", 9], ["sfx", "crit"], ["shake", 6]]
+      },
+      "inputs": [
+        { "key": "KeyQ", "label": "Twin-Fang", "hint": "Rae · pistols", "cooldown": 6, "ok": "rae" },
+        { "key": "KeyE", "label": "Breach", "hint": "Cole · shotgun", "cooldown": 9, "ok": "cole" },
+        { "key": "KeyX", "label": "Sundown", "hint": "duo ultimate", "if": "heat>=100", "denied": "Heat not full", "ok": "special" }
+      ],
+      "timers": [{ "after": [5.5, 7.5], "do": [["random", [1, "flame"], [1, "leap"]]] }]
+    },
+    "idle2": {
+      "clip": "idle", "objective": "Phase II · he's faster and hits harder", "enter": [["class", "danger"]],
+      "spawn": {
+        "label": "Shoot weak points", "sub": "they close faster now",
+        "points": [{ "x": 0.502, "y": 0.463, "name": "CORE" }, { "x": 0.5, "y": 0.385, "name": "VISOR" }, { "x": 0.423, "y": 0.62, "name": "FLAMER" },
+                   { "x": 0.585, "y": 0.6, "name": "GAUNTLET" }, { "x": 0.46, "y": 0.7, "name": "KNEE" }, { "x": 0.545, "y": 0.7, "name": "KNEE" }],
+        "every": [0.8, 1.3], "first": 0.4, "life": 1.3, "max": 3,
+        "hit": [["add", "bossHp", [-520, -320]], ["num", "{last}", "WEAK"], ["add", "heat", 6], ["sfx", "ping"]],
+        "crit": [["add", "bossHp", [-880, -560]], ["num", "{last}", "CRIT", null, null, "big"], ["add", "heat", 9], ["sfx", "crit"], ["shake", 6]]
+      },
+      "inputs": [
+        { "key": "KeyQ", "label": "Twin-Fang", "hint": "Rae · pistols", "cooldown": 6, "ok": "rae" },
+        { "key": "KeyE", "label": "Breach", "hint": "Cole · shotgun", "cooldown": 9, "ok": "cole" },
+        { "key": "KeyX", "label": "Sundown", "hint": "duo ultimate", "if": "heat>=100", "denied": "Heat not full", "ok": "special" }
+      ],
+      "timers": [{ "after": [3.6, 5.0], "do": [["random", [1, "flame"], [1, "leap"]]] }]
+    },
+
+    "rae": {
+      "clip": "rae", "banner": ["Twin-Fang barrage", "Rae · dual pistols"],
+      "cues": [
+        { "t": 0.3, "do": [["add", "bossHp", [-290, -210]], ["num", "{last}", "FANG", 0.66, 0.4], ["sparks", 0.64, 0.38, 10], ["add", "heat", 2]] },
+        { "t": 0.75, "do": [["add", "bossHp", [-290, -210]], ["num", "{last}", "FANG", 0.62, 0.34], ["sparks", 0.62, 0.36, 10], ["add", "heat", 2]] },
+        { "t": 1.25, "do": [["add", "bossHp", [-290, -210]], ["num", "{last}", "FANG", 0.68, 0.42], ["sparks", 0.66, 0.4, 10], ["add", "heat", 2]] },
+        { "t": 1.7, "do": [["add", "bossHp", [-290, -210]], ["num", "{last}", "FANG", 0.64, 0.3], ["sparks", 0.63, 0.32, 10], ["add", "heat", 2]] },
+        { "t": 2.2, "do": [["add", "bossHp", [-290, -210]], ["num", "{last}", "FANG", 0.7, 0.38], ["sparks", 0.68, 0.38, 10], ["add", "heat", 2]] },
+        { "t": 2.75, "do": [["add", "bossHp", [-290, -210]], ["num", "{last}", "FANG", 0.62, 0.42], ["sparks", 0.62, 0.42, 10], ["add", "heat", 2]] },
+        { "t": 3.2, "do": [["add", "bossHp", [-290, -210]], ["num", "{last}", "FANG", 0.66, 0.34], ["sparks", 0.65, 0.35, 10], ["add", "heat", 2]] }
+      ],
+      "next": [["if", "phase==2", "idle2", "idle"]]
+    },
+    "cole": {
+      "clip": "cole", "banner": ["Breach shell", "Cole · pump shotgun"],
+      "cues": [
+        { "t": 0.12, "do": [["add", "bossHp", [-1400, -1050]], ["num", "{last}", "BREACH", 0.6, 0.28, "big"], ["sparks", 0.6, 0.34, 40, 1.4], ["flash", 0.35], ["shake", 18], ["sfx", "thud"], ["hitstop", 0.09], ["add", "heat", 5]] },
+        { "t": 2.05, "do": [["add", "bossHp", [-1400, -1050]], ["num", "{last}", "BREACH", 0.55, 0.36, "big"], ["sparks", 0.55, 0.42, 40, 1.4], ["flash", 0.35], ["shake", 18], ["sfx", "thud"], ["hitstop", 0.09], ["add", "heat", 5]] }
+      ],
+      "next": [["if", "phase==2", "idle2", "idle"]]
+    },
+    "special": {
+      "clip": "special", "banner": ["Sundown crossfire", "Rae & Cole · duo ultimate", "good"], "enter": [["set", "heat", 0], ["music", 0.15, 0.3]],
+      "cues": [
+        { "t": 0.4, "do": [["add", "bossHp", [-1200, -900]], ["num", "{last}", "SUN", 0.12, 0.4], ["shake", 10], ["sfx", "thud"]] },
+        { "t": 1.0, "do": [["add", "bossHp", [-1200, -900]], ["num", "{last}", "SUN", 0.14, 0.44], ["shake", 10], ["sfx", "thud"]] },
+        { "t": 2.6, "do": [["add", "bossHp", [-1200, -900]], ["num", "{last}", "SUN", 0.62, 0.42], ["shake", 10], ["sfx", "thud"]] },
+        { "t": 3.2, "do": [["add", "bossHp", [-1200, -900]], ["num", "{last}", "SUN", 0.6, 0.38], ["shake", 10], ["sfx", "thud"]] },
+        { "t": 3.9, "do": [["add", "bossHp", [-1200, -900]], ["num", "{last}", "SUN", 0.55, 0.4], ["shake", 10], ["sfx", "thud"]] },
+        { "t": 4.8, "do": [["add", "bossHp", -3200], ["num", "{last}", "SUNDOWN", 0.48, 0.3, "big"], ["flash", 0.8], ["shake", 26], ["hitstop", 0.15]] }
+      ],
+      "next": [["music", 0.55, 1], ["if", "phase==2", "idle2", "idle"]]
+    },
+
+    "flame": {
+      "clip": "flameWind", "banner": ["Inferno sweep", "Dodge the flames", "danger"], "enter": [["sfx", "alarm"]],
+      "qte": { "key": "Space", "label": "Dodge", "at": 2.45, "start": 0.85, "perfect": 0.17, "good": 0.4,
+               "perfectText": "Perfect dodge", "goodText": "Dodge", "ok": "dodge", "onPerfect": [["add", "heat", 22], ["goto", "dodge"]], "fail": "burned" }
+    },
+    "leap": {
+      "clip": "leapWind", "banner": ["Meridian crash", "Counter as he lands", "danger"], "enter": [["sfx", "alarm"]],
+      "qte": { "key": "KeyF", "label": "Counter", "at": 2.45, "start": 0.85, "perfect": 0.17, "good": 0.4,
+               "perfectText": "Perfect counter", "goodText": "Counter", "ok": "counter", "onPerfect": [["set", "perfectCounter", 1], ["add", "heat", 28], ["goto", "counter"]], "fail": "slam" }
+    },
+    "dodge": { "clip": "dodge", "next": [["if", "phase==2", "idle2", "idle"]] },
+    "counter": {
+      "clip": "counter",
+      "cues": [{ "t": 1.55, "do": [["if", "perfectCounter==1", [["add", "bossHp", -3000]], [["add", "bossHp", -1900], ["add", "heat", 15]]],
+                                  ["num", "{last}", "COUNTER", 0.7, 0.24, "big"], ["sparks", 0.7, 0.3, 50, 1.5], ["flash", 0.7], ["shake", 24], ["sfx", "thud"], ["hitstop", 0.14], ["set", "perfectCounter", 0]] }],
+      "next": [["if", "phase==2", "idle2", "idle"]]
+    },
+    "burned": {
+      "clip": "burned",
+      "cues": [{ "t": 0.35, "do": [["add", "hp", [-250, -180]], ["num", "{last}", "BURN", 0.18, 0.72, "bad"], ["shake", 22], ["flash", 0.5], ["sfx", "thud"]] }],
+      "next": [["if", "phase==2", "idle2", "idle"]]
+    },
+    "slam": {
+      "clip": "slam",
+      "cues": [{ "t": 0.2, "do": [["add", "hp", [-310, -220]], ["num", "{last}", "CRUSH", 0.18, 0.72, "bad"], ["shake", 24], ["flash", 0.5], ["sfx", "thud"]] }],
+      "next": [["if", "phase==2", "idle2", "idle"]]
+    },
+
+    "rage": {
+      "clip": "rage", "banner": ["Phase II · molten core", "He attacks faster and hits harder", "danger"],
+      "enter": [["intensity", 1], ["music", 0.1, 0.4]], "subs": [[1.2, "The Sandman", "ENOUGH!"]],
+      "cues": [{ "t": 1.3, "do": [["shake", 20], ["flash", 0.4]] }],
+      "next": [["music", 0.6, 1], ["goto", "idle2"]]
+    },
+    "finish": {
+      "clip": "idle", "rate": 0.35, "objective": "Finish him", "banner": ["Finish him", "Shoot the visor", "danger"], "enter": [["music", 0.12, 0.6]],
+      "hotspots": [{ "id": "visor", "x": 0.5, "y": 0.385, "r": 0.05, "label": "VISOR", "do": "finisher" }]
+    },
+    "finisher": {
+      "clip": "finisher", "enter": [["class", "danger", false], ["intensity", 0]],
+      "cues": [{ "t": 0.25, "do": [["num", "9999", "FINAL", 0.5, 0.3, "big"], ["flash", 0.9], ["shake", 16], ["sfx", "crit"]] }, { "t": 3.4, "do": [["shake", 12], ["sfx", "thud"]] }],
+      "next": [["end", "win"]]
+    },
+    "victory": { "clip": "victory", "banner": ["Bounty claimed", "Coral Bay is free", "good"], "subs": [[2.1, "Cole", "Drinks are on you."], [3.8, "Rae", "Deal."]], "enter": [["music", 0.35, 2]] },
+    "defeat": { "clip": "defeat", "banner": ["Crew down", "The storm wins this time", "danger"], "subs": [[1.0, "The Sandman", "The dust buries everyone."]] }
+  },
+
+  "endings": {
+    "win":  { "state": "victory", "win": true,  "title": "Bounty report", "text": "The Sandman is down. Coral Bay breathes again." },
+    "lose": { "state": "defeat",  "win": false, "title": "Bounty failed", "text": "The storm wins this time." }
+  },
+  "rank": [["fails==0 && hp>=800", "S"], ["fails<=1", "A"], ["fails<=3", "B"], ["true", "C"]],
+  "results": [["Damage dealt", "48000-bossHp"], ["Vitality", "hp"], ["Perfect reactions", "perfects"], ["Missed", "fails"], ["Phase reached", "phase"]],
+
+  "demo": {
+    "title": 4.2, "briefing": 8, "results": 6.5,
+    "states": {
+      "idle": [[["shoot", 3.2], ["press", "KeyQ", "any"]], [["shoot", 3.2], ["press", "KeyE", "any"]], [["shoot", 30]]],
+      "idle2": [[["shoot", 2.5], ["press", "KeyX", "any"]], [["shoot", 2.5], ["press", "KeyQ", "any"]], [["shoot", 2.5], ["press", "KeyE", "any"]], [["shoot", 30]]],
+      "flame": [[["qte", "perfect"]], [["qte", "good"]]],
+      "leap": [[["qte", "perfect"]], [["qte", "early"]], [["qte", "perfect"]]],
+      "finish": [[["wait", 1.2], ["click", "visor"]]]
+    }
+  }
+}

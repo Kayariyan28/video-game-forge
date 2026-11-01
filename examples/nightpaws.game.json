@@ -1,0 +1,177 @@
+{
+  "meta": {
+    "title": "NIGHT PAWS",
+    "subtitle": "The Moonstone Caper",
+    "kicker": "A playable AI-video heist · stylized 3D",
+    "blurb": "Rocco the raccoon has one night to lift the Moonstone from the Grand Moonlight Museum. Brutus the bulldog guard is sleepy, but he isn't blind. Move only when it's safe, choose your route, and find something the right weight for the pedestal.",
+    "credit": "K28",
+    "start": "intro",
+    "mood": "sneaky",
+    "musicLevel": 0.4,
+    "playVolume": 0.85,
+    "motes": 9,
+    "titleImage": "assets/img/k02_hall_idle.jpg",
+    "theme": { "accent": "#ff5a6e", "accent2": "#5ee0ff", "mote": "190,220,255" },
+    "briefing": {
+      "kicker": "Job 01 · Grand Moonlight Museum",
+      "heading": "Steal the<br>Moonstone.",
+      "text": "Cross the hall while Brutus looks away, take the vent or the laser corridor, and get out with the gem. Every mistake raises the alarm. At 100 you're busted.",
+      "image": "assets/img/k12_vault_idle.jpg"
+    }
+  },
+
+  "clips": {
+    "intro":        { "src": "assets/video/c01_intro.mp4" },
+    "hall_idle":    { "src": "assets/video/c02_hall_idle.mp4", "loop": true },
+    "hall_sneak":   { "src": "assets/video/c03_hall_sneak.mp4" },
+    "hall_spotted": { "src": "assets/video/c04_hall_spotted.mp4" },
+    "junction":     { "src": "assets/video/c05_junction.mp4", "loop": true },
+    "laser_idle":   { "src": "assets/video/c06_laser_idle.mp4", "loop": true },
+    "laser_flip":   { "src": "assets/video/c07_laser_flip.mp4" },
+    "laser_trip":   { "src": "assets/video/c08_laser_trip.mp4" },
+    "vent_crawl":   { "src": "assets/video/c09_vent_crawl.mp4" },
+    "vent_hold":    { "src": "assets/video/c10_vent_hold.mp4" },
+    "vent_sneeze":  { "src": "assets/video/c11_vent_sneeze.mp4" },
+    "vault_idle":   { "src": "assets/video/c12_vault_idle.mp4", "loop": true },
+    "vault_swap":   { "src": "assets/video/c13_vault_swap.mp4" },
+    "vault_alarm":  { "src": "assets/video/c14_vault_alarm.mp4" },
+    "escape":       { "src": "assets/video/c15_escape.mp4" },
+    "victory":      { "src": "assets/video/c16_victory.mp4" },
+    "caught":       { "src": "assets/video/c17_caught.mp4" }
+  },
+
+  "vars": {
+    "alert": { "init": 0, "min": 0, "max": 100 },
+    "donut": 0,
+    "route": "—"
+  },
+
+  "hud": {
+    "rooms": ["Roof", "Hall", "Fork", ["Vent", "Lasers"], "Vault"],
+    "meters": [{ "var": "alert", "label": "Alert", "max": 100, "hot": true }],
+    "items": [{ "var": "donut", "icon": "🍩", "label": "Donut" }],
+    "readouts": [["Alert", "alert"], ["Route", "route"], ["Mistakes", "fails"], ["Time", "time"]],
+    "dial": { "var": "alert", "label": "Alert", "max": 100, "hot": "alert>=60" }
+  },
+
+  "controls": [
+    { "key": "Space", "label": "Sneak · jump", "desc": "Move only while it's safe: guard looking away, lasers off." },
+    { "key": "KeyA|KeyD", "label": "Pick a route", "desc": "Air vent or laser corridor." },
+    { "key": "KeyF", "label": "Hold in a sneeze", "desc": "Press as the ring closes." },
+    { "key": "KeyE", "label": "Fire the grapple", "desc": "Escape just as he lunges." },
+    { "key": "Click", "label": "Grab things", "desc": "A donut might come in handy." }
+  ],
+
+  "rules": [
+    { "when": "alert>=100", "do": [["banner", "Busted", "Alert maxed out", "danger"], ["end", "caught"]] }
+  ],
+
+  "states": {
+    "intro": {
+      "clip": "intro", "room": "Roof", "skippable": true,
+      "banner": ["Night Paws", "The Moonstone Caper · 02:14 AM"],
+      "subs": [[3.3, "Rocco", "Moonstone… come to papa."]],
+      "next": "hall"
+    },
+    "hall": {
+      "clip": "hall_idle", "room": "Hall",
+      "objective": "Cross the hall while Brutus looks away",
+      "inputs": [{
+        "key": "Space", "label": "Sneak across", "hint": "only while he looks away",
+        "windows": [[0, 2.1], [4.45, 6.1]], "safe": "Looking away — go", "danger": "Watching — stay hidden",
+        "ok": "hall_sneak", "fail": "hall_spotted"
+      }],
+      "hotspots": [{
+        "id": "donut", "x": 0.81, "y": 0.775, "r": 0.045, "label": "DONUT",
+        "do": [["set", "donut", 1], ["tag", "Donut acquired", "item", 0.81, 0.62]]
+      }]
+    },
+    "hall_sneak": { "clip": "hall_sneak", "room": "Hall", "enter": [["tag", "Unseen", "good"]], "next": "junction" },
+    "hall_spotted": {
+      "clip": "hall_spotted", "room": "Hall",
+      "enter": [["add", "alert", 30], ["tag", "Spotted · +30 alert", "bad"], ["sfx", "alarm"], ["shake", 8]],
+      "subs": [[2.6, "Brutus", "Huh? Must be the donuts again."]],
+      "next": "hall"
+    },
+    "junction": {
+      "clip": "junction", "room": "Fork",
+      "objective": "Pick your route to the vault",
+      "choices": [
+        { "key": "KeyA|ArrowLeft", "label": "Air vent", "sub": "Dusty. Don't sneeze.", "do": [["set", "route", "Air vent"], ["goto", "vent"]] },
+        { "key": "KeyD|ArrowRight", "label": "Laser corridor", "sub": "Wait for the blackout.", "do": [["set", "route", "Lasers"], ["goto", "lasers"]] }
+      ],
+      "menuHint": "Choose your route"
+    },
+    "lasers": {
+      "clip": "laser_idle", "room": "Lasers",
+      "objective": "Flip through during the blackout",
+      "inputs": [{
+        "key": "Space", "label": "Flip through", "hint": "only while the lasers are off",
+        "windows": [[2.05, 2.8]], "safe": "Lasers off — go", "danger": "Lasers armed",
+        "ok": "laser_flip", "fail": "laser_trip"
+      }]
+    },
+    "laser_flip": { "clip": "laser_flip", "room": "Lasers", "enter": [["tag", "Clean flip", "good"]], "next": "vault" },
+    "laser_trip": {
+      "clip": "laser_trip", "room": "Lasers",
+      "enter": [["add", "alert", 35], ["tag", "Tripped · +35 alert", "bad"], ["sfx", "alarm"], ["shake", 10]],
+      "next": "lasers"
+    },
+    "vent": {
+      "clip": "vent_crawl", "room": "Vent",
+      "objective": "Hold in the sneeze",
+      "qte": { "key": "KeyF", "label": "Hold it in", "at": 3.2, "start": 1.4, "perfect": 0.18, "good": 0.42,
+               "perfectText": "Perfect hold", "lateText": "Achoo!", "ok": "vent_hold", "fail": "vent_sneeze" }
+    },
+    "vent_hold": { "clip": "vent_hold", "room": "Vent", "next": "vault" },
+    "vent_sneeze": {
+      "clip": "vent_sneeze", "room": "Vent",
+      "enter": [["add", "alert", 30], ["tag", "Heard you · +30 alert", "bad"], ["shake", 12]],
+      "subs": [[2.1, "Brutus (far away)", "Bless you?"]],
+      "next": "vault"
+    },
+    "vault": {
+      "clip": "vault_idle", "room": "Vault",
+      "objective": "Take the Moonstone without tripping the pedestal",
+      "hotspots": [{
+        "id": "gem", "x": 0.52, "y": 0.34, "r": 0.05, "label": "MOONSTONE",
+        "do": [["if", "donut>=1", "vault_swap", "vault_alarm"]]
+      }]
+    },
+    "vault_swap": { "clip": "vault_swap", "room": "Vault", "enter": [["tag", "Donut swap", "good"]], "next": [["end", "clean"]] },
+    "vault_alarm": {
+      "clip": "vault_alarm", "room": "Vault",
+      "enter": [["add", "alert", 25], ["banner", "Alarm", "The pedestal noticed", "danger"], ["sfx", "alarm"], ["shake", 14], ["intensity", 1]],
+      "next": "escape"
+    },
+    "escape": {
+      "clip": "escape", "room": "Vault",
+      "subs": [[0.7, "Brutus", "Hey! Get back here!"]],
+      "qte": { "key": "KeyE", "label": "Fire the grapple", "at": 1.6, "start": 0.2, "perfect": 0.18, "good": 0.42, "continue": true,
+               "perfectText": "Perfect zip", "ok": [["tag", "Zipped out", "good"]], "fail": [["end", "caught"]] },
+      "next": [["end", "getaway"]]
+    },
+    "victory": { "clip": "victory", "room": "Roof", "hud": false, "subs": [[3.7, "Rocco", "Easy-peasy."]], "enter": [["intensity", 0]] },
+    "caught": { "clip": "caught", "room": "Hall", "hud": false, "subs": [[1.4, "Brutus", "Gotcha, little guy."]], "enter": [["intensity", 0]] }
+  },
+
+  "endings": {
+    "clean":   { "state": "victory", "win": true,  "title": "Clean getaway", "text": "Swapped it for a donut. Nobody noticed a thing." },
+    "getaway": { "state": "victory", "win": true,  "title": "Narrow escape", "text": "Out through the skylight, one paw ahead of Brutus." },
+    "caught":  { "state": "caught",  "win": false, "title": "Busted", "text": "Brutus finally caught his raccoon." }
+  },
+
+  "rank": [["alert==0", "S"], ["alert<=30", "A"], ["alert<=65", "B"], ["true", "C"]],
+  "results": [["Alert", "alert"], ["Route", "route"], ["Mistakes", "fails"], ["Perfect", "perfects"], ["Donut", "donut>=1 ? 'Found' : 'Missed'"]],
+
+  "demo": {
+    "title": 4.2, "briefing": 8, "results": 6.5,
+    "states": {
+      "hall": [[["wait", 1.4], ["press", "Space", "danger"]], [["wait", 0.5], ["press", "Space", "safe"]]],
+      "junction": [[["wait", 1.8], ["choose", "KeyA"]]],
+      "vent": [[["qte", "perfect"]]],
+      "vault": [[["wait", 1.3], ["click", "gem"]]],
+      "escape": [[["qte", "perfect"]]]
+    }
+  }
+}

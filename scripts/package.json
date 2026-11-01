@@ -1,0 +1,8 @@
+{
+  "name": "video-game-forge-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Render, mix and analysis tools for Video Game Forge games. Built and designed by K28.",
+  "dependencies": { "puppeteer-core": "^23.11.1" }
+}
